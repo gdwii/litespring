@@ -1,7 +1,7 @@
 package org.litespring.test.v1;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.litespring.core.io.CLassPathResource;
 import org.litespring.core.io.FileSystemResource;
 import org.litespring.core.io.Resource;
@@ -14,7 +14,7 @@ public class ResourceTest {
     public void testClassPathResource() throws IOException {
         Resource resource = new CLassPathResource("petstore-v1.xml");
         try(InputStream in = resource.getInputStream()){
-            Assert.assertNotNull(in);
+            Assertions.assertNotNull(in);
         }
     }
 
@@ -23,7 +23,7 @@ public class ResourceTest {
         String path = ResourceTest.class.getClassLoader().getResource("petstore-v1.xml").getPath();
         Resource resource = new FileSystemResource(path);
         try(InputStream in = resource.getInputStream()){
-            Assert.assertNotNull(in);
+            Assertions.assertNotNull(in);
         }
     }
 }
