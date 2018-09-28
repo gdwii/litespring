@@ -27,7 +27,7 @@ public abstract class ClassUtils {
             // No thread context class loader -> use class loader of this class.
             cl = ClassUtils.class.getClassLoader();
             if (cl == null) {
-                // getClassLoader() returning null indicates the bootstrap ClassLoader
+                // getBeanClassLoader() returning null indicates the bootstrap ClassLoader
                 try {
                     cl = ClassLoader.getSystemClassLoader();
                 }

@@ -2,13 +2,16 @@ package org.litespring.beans.factory.support;
 
 import org.litespring.beans.BeanDefinition;
 import org.litespring.beans.factory.BeanCreationException;
-import org.litespring.beans.factory.BeanFactory;
+import org.litespring.beans.factory.config.ConfigurableBeanFactory;
+import org.litespring.util.ClassUtils;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry {
+public class DefaultBeanFactory implements ConfigurableBeanFactory, BeanDefinitionRegistry {
     private final Map<String, BeanDefinition> beanDefinitions = new ConcurrentHashMap<>();
+
+    private ClassLoader beanClassLoader;
 
     public Object getBean(String beanId) {
         BeanDefinition beanDefinition = getBeanDefinition(beanId);
@@ -17,7 +20,8 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry {
         }
         String beanClassName = beanDefinition.getBeanClassName();
         try {
-            return Class.forName(beanClassName).getDeclaredConstructor().newInstance();
+            Class<?> beanClass = getBeanClassLoader().loadClass(beanClassName);
+            return beanClass.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new BeanCreationException("create bean for " + beanClassName + " fail", e);
         }
@@ -31,5 +35,15 @@ public class DefaultBeanFactory implements BeanFactory, BeanDefinitionRegistry {
     @Override
     public BeanDefinition getBeanDefinition(String beanId) {
         return beanDefinitions.get(beanId);
+    }
+
+    @Override
+    public void setBeanClassLoader(ClassLoader beanClassLoader) {
+        this.beanClassLoader = beanClassLoader;
+    }
+
+    @Override
+    public ClassLoader getBeanClassLoader() {
+        return beanClassLoader != null ? beanClassLoader : ClassUtils.getDefaultClassLoader();
     }
 }
