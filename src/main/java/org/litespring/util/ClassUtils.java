@@ -1,4 +1,4 @@
-package org.litespring.beans.util;
+package org.litespring.util;
 
 public abstract class ClassUtils {
     /**

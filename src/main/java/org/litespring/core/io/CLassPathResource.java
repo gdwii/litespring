@@ -1,7 +1,7 @@
 package org.litespring.core.io;
 
-import org.litespring.beans.util.ClassUtils;
-import org.litespring.core.io.Resource;
+import org.litespring.util.Assert;
+import org.litespring.util.ClassUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
