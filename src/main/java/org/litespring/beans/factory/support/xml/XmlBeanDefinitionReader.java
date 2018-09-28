@@ -3,6 +3,7 @@ package org.litespring.beans.factory.support.xml;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.litespring.beans.BeanDefinition;
 import org.litespring.beans.factory.BeanDefinitionStoreException;
 import org.litespring.beans.factory.support.BeanDefinitionRegistry;
 import org.litespring.beans.factory.support.GenericBeanDefinition;
@@ -21,6 +22,7 @@ public class XmlBeanDefinitionReader {
 
     private static final String ATTRIBUTE_ID = "id";
     private static final String ATTRIBUTE_CLASS = "class";
+    private static final String ATTRIBUTE_SCOPE = "scope";
 
 
     public void loadBeanDefinitions(Resource resource){
@@ -33,7 +35,9 @@ public class XmlBeanDefinitionReader {
             for (Element element : elementList) {
                 String id = element.attributeValue(ATTRIBUTE_ID);
                 String className = element.attributeValue(ATTRIBUTE_CLASS);
-                beanDefinitionRegistry.registerBeanDefinition(id, new GenericBeanDefinition(id, className));
+                BeanDefinition beanDefinition = new GenericBeanDefinition(id, className);
+                beanDefinition.setScope(element.attributeValue(ATTRIBUTE_SCOPE));
+                beanDefinitionRegistry.registerBeanDefinition(id, beanDefinition);
             }
         } catch (Exception e) {
             throw new BeanDefinitionStoreException("IOException parsing XML document from " + resource.getDescription(), e);
