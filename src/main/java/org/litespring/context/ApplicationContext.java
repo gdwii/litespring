@@ -1,4 +1,4 @@
-package org.litespring.beans.context;
+package org.litespring.context;
 
 import org.litespring.beans.factory.config.ConfigurableBeanFactory;
 

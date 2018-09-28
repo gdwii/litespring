@@ -2,9 +2,9 @@ package org.litespring.test.v1;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.litespring.beans.context.ApplicationContext;
-import org.litespring.beans.context.support.ClassPathXmlApplicationContext;
-import org.litespring.beans.context.support.FileSystemXmlApplicationContext;
+import org.litespring.context.ApplicationContext;
+import org.litespring.context.support.ClassPathXmlApplicationContext;
+import org.litespring.context.support.FileSystemXmlApplicationContext;
 import org.litespring.service.v1.PetStoreService;
 
 public class ApplicationContextTest {

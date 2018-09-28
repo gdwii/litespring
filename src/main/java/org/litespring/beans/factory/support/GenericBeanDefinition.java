@@ -7,10 +7,6 @@ public class GenericBeanDefinition implements BeanDefinition {
 
     private String beanClassName;
 
-    private boolean singleton;
-
-    private boolean prototype;
-
     private String scope = SCOPE_DEFAULT;
 
     public GenericBeanDefinition(String id, String className) {
@@ -37,12 +33,12 @@ public class GenericBeanDefinition implements BeanDefinition {
 
     @Override
     public boolean isSingleton() {
-        return singleton;
+        return SCOPE_SINGLETON.equals(scope) || SCOPE_DEFAULT.equals(scope);
     }
 
     @Override
     public boolean isPrototype() {
-        return prototype;
+        return SCOPE_PROTOTYPE.equals(scope);
     }
 
     @Override
@@ -52,11 +48,8 @@ public class GenericBeanDefinition implements BeanDefinition {
 
     @Override
     public void setScope(String scope) {
-        if(scope == null){
-            scope = SCOPE_DEFAULT;
+        if(scope != null){
+            this.scope = scope;
         }
-        this.scope = scope;
-        singleton = SCOPE_SINGLETON.equals(scope) || SCOPE_DEFAULT.equals(scope);
-        prototype = SCOPE_PROTOTYPE.equals(scope);
     }
 }
