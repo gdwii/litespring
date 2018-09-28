@@ -2,7 +2,7 @@ package org.litespring.context.support;
 
 import org.litespring.context.ApplicationContext;
 import org.litespring.beans.factory.support.DefaultBeanFactory;
-import org.litespring.beans.factory.support.xml.XmlBeanDefinitionReader;
+import org.litespring.beans.factory.xml.XmlBeanDefinitionReader;
 import org.litespring.core.io.Resource;
 
 public abstract class AbstractApplicationContext implements ApplicationContext {

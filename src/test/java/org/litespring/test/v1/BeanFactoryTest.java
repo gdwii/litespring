@@ -7,7 +7,7 @@ import org.litespring.beans.BeanDefinition;
 import org.litespring.beans.factory.BeanCreationException;
 import org.litespring.beans.factory.BeanDefinitionStoreException;
 import org.litespring.beans.factory.support.DefaultBeanFactory;
-import org.litespring.beans.factory.support.xml.XmlBeanDefinitionReader;
+import org.litespring.beans.factory.xml.XmlBeanDefinitionReader;
 import org.litespring.core.io.CLassPathResource;
 import org.litespring.core.io.Resource;
 import org.litespring.service.v1.PetStoreService;
@@ -34,8 +34,18 @@ public class BeanFactoryTest {
         Assertions.assertEquals(BeanDefinition.SCOPE_DEFAULT, beanDefine.getScope());
         Assertions.assertEquals("org.litespring.service.v1.PetStoreService", beanDefine.getBeanClassName());
 
+        // singleton bean
         PetStoreService petStoreService = (PetStoreService)defaultBeanFactory.getBean("petStore");
         Assertions.assertNotNull(petStoreService);
+        PetStoreService petStoreService2 = (PetStoreService)defaultBeanFactory.getBean("petStore");
+        Assertions.assertSame(petStoreService, petStoreService2);
+
+        // prototype bean
+        PetStoreService prototypePetStore = (PetStoreService)defaultBeanFactory.getBean("prototypePetStore");
+        Assertions.assertNotNull(prototypePetStore);
+        PetStoreService prototypePetStore2 = (PetStoreService)defaultBeanFactory.getBean("prototypePetStore");
+        Assertions.assertNotNull(prototypePetStore2);
+        Assertions.assertNotSame(prototypePetStore, prototypePetStore2);
     }
 
     @Test
