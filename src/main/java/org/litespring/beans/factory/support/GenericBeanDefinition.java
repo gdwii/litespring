@@ -1,6 +1,9 @@
 package org.litespring.beans.factory.support;
 
 import org.litespring.beans.BeanDefinition;
+import org.litespring.beans.PropertyValue;
+
+import java.util.List;
 
 public class GenericBeanDefinition implements BeanDefinition {
     private String id;
@@ -8,6 +11,8 @@ public class GenericBeanDefinition implements BeanDefinition {
     private String beanClassName;
 
     private String scope = SCOPE_DEFAULT;
+
+    private List<PropertyValue> propertyValues;
 
     public GenericBeanDefinition(String id, String className) {
         this.id = id;
@@ -51,5 +56,10 @@ public class GenericBeanDefinition implements BeanDefinition {
         if(scope != null){
             this.scope = scope;
         }
+    }
+
+    @Override
+    public List<PropertyValue> getPropertyValues() {
+        return propertyValues;
     }
 }
