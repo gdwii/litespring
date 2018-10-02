@@ -6,6 +6,11 @@ public class PropertyValue {
     private boolean converted;
     private Object convertedValue;
 
+    public PropertyValue(String name, Object value) {
+        this.name = name;
+        this.value = value;
+    }
+
     public String getName() {
         return name;
     }

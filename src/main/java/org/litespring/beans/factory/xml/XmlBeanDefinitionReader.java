@@ -45,9 +45,10 @@ public class XmlBeanDefinitionReader {
             for (Element element : elementList) {
                 String id = element.attributeValue(ATTRIBUTE_ID);
                 String className = element.attributeValue(ATTRIBUTE_CLASS);
-                BeanDefinition beanDefinition = new GenericBeanDefinition(id, className);
-                beanDefinition.setScope(element.attributeValue(ATTRIBUTE_SCOPE));
-                parsePropertyValue(beanDefinition.getPropertyValues(), element.elements(ELEMENT_PROPERTY));
+
+                BeanDefinition beanDefinition = createBeanDefinition(id, className);
+                parseBeanDefinitionAttributes(beanDefinition, element);
+                parsePropertyElements(element, beanDefinition);
 
                 beanDefinitionRegistry.registerBeanDefinition(id, beanDefinition);
             }
@@ -56,35 +57,42 @@ public class XmlBeanDefinitionReader {
         }
     }
 
-    private void parsePropertyValue(List<PropertyValue> propertyValues, List<Element> elements) {
-        if(elements == null){
+    private BeanDefinition createBeanDefinition(String beanId, String className){
+        return new GenericBeanDefinition(beanId, className);
+    }
+
+    private void parseBeanDefinitionAttributes(BeanDefinition beanDefinition, Element element){
+        if(hasAttribute(element, ATTRIBUTE_SCOPE)){
+            beanDefinition.setScope(element.attributeValue(ATTRIBUTE_SCOPE));
+        }
+    }
+
+    private void parsePropertyElements(Element beanElement, BeanDefinition beanDefinition) {
+       List<Element> propertyElements =  beanElement.elements(ELEMENT_PROPERTY);
+        if(propertyElements == null){
             return;
         }
-        elements.forEach(element -> {
-            String propertyName = element.attributeValue(ATTRIBUTE_PROPERTY_NAME);
-            if (!StringUtils.hasLength(propertyName)) {
-                logger.error("Tag 'property' must have a 'name' attribute");
-                return;
-            }
-            PropertyValue propertyValue = parsePropertyValue(element, propertyName);
-            propertyValues.add(propertyValue);
-        });
+        propertyElements.forEach(propertyElement -> parsePropertyElement(propertyElement, beanDefinition));
     }
 
-    private PropertyValue parsePropertyValue(Element element, String propertyName) {
-        PropertyValue propertyValue = new PropertyValue();
-        propertyValue.setName(propertyName);
-        propertyValue.setValue(parseValueOfPropertyValue(element, propertyName));
-        return propertyValue;
+    private void parsePropertyElement(Element propertyElement, BeanDefinition beanDefinition) {
+        String propertyName = propertyElement.attributeValue(ATTRIBUTE_PROPERTY_NAME);
+        if (!StringUtils.hasLength(propertyName)) {
+            logger.error("Tag 'property' must have a 'name' attribute");
+            return;
+        }
+        Object value = parsePropertyValue(propertyElement, propertyName);
+        PropertyValue propertyValue = new PropertyValue(propertyName, value);
+        beanDefinition.getPropertyValues().add(propertyValue);
     }
 
-    private Object parseValueOfPropertyValue(Element element, String propertyName) {
+    private Object parsePropertyValue(Element element, String propertyName) {
         String elementName = (propertyName != null) ?
                 "<property> element for property '" + propertyName + "'" :
                 "<constructor-arg> element";
 
-        boolean hasRef = element.attribute(ATTRIBUTE_PROPERTY_REF) != null;
-        if(hasRef){
+        boolean hasRefAttribute =  hasAttribute(element, ATTRIBUTE_PROPERTY_REF);
+        if(hasRefAttribute){
             String refValue = element.attributeValue(ATTRIBUTE_PROPERTY_REF);
             if(StringUtils.isEmpty(refValue)){
                 logger.error(elementName + " contains empty 'ref' attribute");
@@ -93,11 +101,15 @@ public class XmlBeanDefinitionReader {
             return new RuntimeBeanReference(refValue);
         }
 
-        boolean hasValue = element.attribute(ATTRIBUTE_PROPERTY_VALUE) != null;
-        if(hasValue){
+        boolean hasValueAttribute = hasAttribute(element, ATTRIBUTE_PROPERTY_VALUE);
+        if(hasValueAttribute){
             return new TypeStringValue(element.attributeValue(ATTRIBUTE_PROPERTY_VALUE));
         }
 
         throw new RuntimeException(elementName + " must specify a ref or value");
+    }
+
+    private static boolean hasAttribute(Element element, String attributeName){
+        return element.attribute(attributeName) != null;
     }
 }
