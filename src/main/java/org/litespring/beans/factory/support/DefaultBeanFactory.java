@@ -2,6 +2,8 @@ package org.litespring.beans.factory.support;
 
 import org.litespring.beans.BeanDefinition;
 import org.litespring.beans.PropertyValue;
+import org.litespring.beans.SimpleTypeConverter;
+import org.litespring.beans.TypeConverter;
 import org.litespring.beans.factory.BeanCreationException;
 import org.litespring.beans.factory.config.ConfigurableBeanFactory;
 import org.litespring.util.ClassUtils;
@@ -55,13 +57,15 @@ public class DefaultBeanFactory extends DefaultSingletonBeanRegistry
         }
 
         BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this);
+        TypeConverter typeConverter = new SimpleTypeConverter();
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
 
             for(PropertyValue propertyValue : propertyValues){
                 PropertyDescriptor propertyDescriptor = getPropertyDescriptor(beanInfo, propertyValue.getName());
                 Object resolvedValue = valueResolver.resolveValueIfNecessary(propertyValue.getValue());
-                propertyDescriptor.getWriteMethod().invoke(bean, resolvedValue);
+                Object convertedValue = typeConverter.convertIfNecessary(resolvedValue, propertyDescriptor.getPropertyType());
+                propertyDescriptor.getWriteMethod().invoke(bean, convertedValue);
             }
         } catch (Exception e) {
             throw new BeanCreationException("Failed to obtain BeanInfo for class [" + beanDefinition.getBeanClassName() + "]", e);
