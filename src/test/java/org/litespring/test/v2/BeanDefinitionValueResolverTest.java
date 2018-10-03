@@ -26,14 +26,14 @@ public class BeanDefinitionValueResolverTest {
     @Test
     public void testRuntimeBeanReference(){
         RuntimeBeanReference beanReference = new RuntimeBeanReference("accountDao");
-        Object beanReferenceValue = resolver.resolve(beanReference);
+        Object beanReferenceValue = resolver.resolveValueIfNecessary(beanReference);
         Assertions.assertTrue(beanReferenceValue instanceof AccountDao);
     }
 
     @Test
     public void testTypedStringValue(){
         TypedStringValue stringValue = new TypedStringValue("test");
-        Object value = resolver.resolve(stringValue);
+        Object value = resolver.resolveValueIfNecessary(stringValue);
         Assertions.assertEquals("test", value);
     }
 }

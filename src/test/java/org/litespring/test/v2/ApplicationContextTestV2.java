@@ -10,6 +10,8 @@ import org.litespring.beans.factory.xml.XmlBeanDefinitionReader;
 import org.litespring.context.ApplicationContext;
 import org.litespring.context.support.ClassPathXmlApplicationContext;
 import org.litespring.core.io.CLassPathResource;
+import org.litespring.dao.v2.AccountDao;
+import org.litespring.dao.v2.ItemDao;
 import org.litespring.service.v2.PetStoreService;
 
 import java.util.List;
@@ -19,7 +21,8 @@ public class ApplicationContextTestV2 {
     public void testGetBeanProperty(){
         ApplicationContext context = new ClassPathXmlApplicationContext("petstore-v2.xml");
         PetStoreService petStoreService = (PetStoreService) context.getBean("petStore");
-        Assertions.assertNotNull(petStoreService.getAccountDao());
-        Assertions.assertNotNull(petStoreService.getItemDao());
+        Assertions.assertTrue(petStoreService.getAccountDao() instanceof AccountDao);
+        Assertions.assertTrue(petStoreService.getItemDao() instanceof ItemDao);
+        Assertions.assertEquals("gdwii", petStoreService.getOwner());
     }
 }

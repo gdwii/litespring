@@ -11,7 +11,7 @@ public class BeanDefinitionValueResolver {
         this.beanFactory = beanFactory;
     }
 
-    public Object resolve(Object value){
+    public Object resolveValueIfNecessary(Object value){
         if(value instanceof RuntimeBeanReference){
             RuntimeBeanReference beanReference = (RuntimeBeanReference)value;
             return beanFactory.getBean(beanReference.getBeanName());
