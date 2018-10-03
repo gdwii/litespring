@@ -7,7 +7,7 @@ import org.litespring.beans.BeanDefinition;
 import org.litespring.beans.PropertyValue;
 import org.litespring.beans.factory.BeanDefinitionStoreException;
 import org.litespring.beans.factory.config.RuntimeBeanReference;
-import org.litespring.beans.factory.config.TypeStringValue;
+import org.litespring.beans.factory.config.TypedStringValue;
 import org.litespring.beans.factory.support.BeanDefinitionRegistry;
 import org.litespring.beans.factory.support.GenericBeanDefinition;
 import org.litespring.core.io.Resource;
@@ -103,7 +103,7 @@ public class XmlBeanDefinitionReader {
 
         boolean hasValueAttribute = hasAttribute(element, ATTRIBUTE_PROPERTY_VALUE);
         if(hasValueAttribute){
-            return new TypeStringValue(element.attributeValue(ATTRIBUTE_PROPERTY_VALUE));
+            return new TypedStringValue(element.attributeValue(ATTRIBUTE_PROPERTY_VALUE));
         }
 
         throw new RuntimeException(elementName + " must specify a ref or value");
