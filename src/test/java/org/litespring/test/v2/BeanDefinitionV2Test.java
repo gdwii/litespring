@@ -11,7 +11,7 @@ import org.litespring.core.io.CLassPathResource;
 
 import java.util.List;
 
-public class BeanDefinitionTestV2 {
+public class BeanDefinitionV2Test {
     @Test
     public void testGetBeanDefinition(){
         DefaultBeanFactory defaultBeanFactory = new DefaultBeanFactory();
@@ -20,7 +20,7 @@ public class BeanDefinitionTestV2 {
 
         BeanDefinition beanDefinition = defaultBeanFactory.getBeanDefinition("petStore");
         List<PropertyValue> propertyValues = beanDefinition.getPropertyValues();
-        Assertions.assertEquals(propertyValues.size(), 2);
+        Assertions.assertEquals(propertyValues.size(), 4);
 
         {
             PropertyValue propertyValue = getPropertyValue(propertyValues, "accountDao");

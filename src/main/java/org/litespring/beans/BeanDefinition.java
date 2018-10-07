@@ -24,4 +24,6 @@ public interface BeanDefinition {
     ConstructorArgumentValues getConstructorArgumentValues();
 
     String getId();
+
+    boolean hasConstructorArgumentValues();
 }

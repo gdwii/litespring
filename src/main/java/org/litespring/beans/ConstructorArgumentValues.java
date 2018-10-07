@@ -25,6 +25,10 @@ public class ConstructorArgumentValues {
         return genericArgumentValues.size();
     }
 
+    public boolean isEmpty() {
+        return genericArgumentValues.isEmpty();
+    }
+
     public static class ValueHolder {
         private String name;
 

@@ -12,7 +12,7 @@ import org.litespring.core.io.CLassPathResource;
 
 import java.util.List;
 
-public class BeanDefinitionTestV3 {
+public class BeanDefinitionV3Test {
     @Test
     public void testGetBeanDefinition(){
         DefaultBeanFactory defaultBeanFactory = new DefaultBeanFactory();

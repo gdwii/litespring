@@ -1,29 +1,21 @@
-package org.litespring.test.v2;
+package org.litespring.test.v3;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.litespring.beans.BeanDefinition;
-import org.litespring.beans.PropertyValue;
-import org.litespring.beans.factory.config.RuntimeBeanReference;
-import org.litespring.beans.factory.support.DefaultBeanFactory;
-import org.litespring.beans.factory.xml.XmlBeanDefinitionReader;
 import org.litespring.context.ApplicationContext;
 import org.litespring.context.support.ClassPathXmlApplicationContext;
-import org.litespring.core.io.CLassPathResource;
 import org.litespring.dao.v2.AccountDao;
 import org.litespring.dao.v2.ItemDao;
-import org.litespring.service.v2.PetStoreService;
+import org.litespring.service.v3.PetStoreService;
 
-import java.util.List;
 
-public class ApplicationContextTestV2 {
+public class ApplicationContextV3Test {
     @Test
     public void testGetBeanProperty(){
-        ApplicationContext context = new ClassPathXmlApplicationContext("petstore-v2.xml");
+        ApplicationContext context = new ClassPathXmlApplicationContext("petstore-v3.xml");
         PetStoreService petStoreService = (PetStoreService) context.getBean("petStore");
         Assertions.assertTrue(petStoreService.getAccountDao() instanceof AccountDao);
         Assertions.assertTrue(petStoreService.getItemDao() instanceof ItemDao);
-        Assertions.assertEquals("gdwii", petStoreService.getOwner());
         Assertions.assertEquals(1, petStoreService.getVersion());
     }
 }
