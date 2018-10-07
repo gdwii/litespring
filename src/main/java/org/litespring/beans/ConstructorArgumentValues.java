@@ -21,6 +21,10 @@ public class ConstructorArgumentValues {
         }
     }
 
+    public int getArgumentCount(){
+        return genericArgumentValues.size();
+    }
+
     public static class ValueHolder {
         private String name;
 

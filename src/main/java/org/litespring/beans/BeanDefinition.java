@@ -22,4 +22,6 @@ public interface BeanDefinition {
     List<PropertyValue> getPropertyValues();
 
     ConstructorArgumentValues getConstructorArgumentValues();
+
+    String getId();
 }
