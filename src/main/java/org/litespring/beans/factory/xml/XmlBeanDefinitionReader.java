@@ -4,6 +4,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.litespring.beans.BeanDefinition;
+import org.litespring.beans.ConstructorArgumentValues;
 import org.litespring.beans.PropertyValue;
 import org.litespring.beans.factory.BeanDefinitionStoreException;
 import org.litespring.beans.factory.config.RuntimeBeanReference;
@@ -30,10 +31,12 @@ public class XmlBeanDefinitionReader {
     private static final String ATTRIBUTE_ID = "id";
     private static final String ATTRIBUTE_CLASS = "class";
     private static final String ATTRIBUTE_SCOPE = "scope";
+    private static final String ATTRIBUTE_REF = "ref";
+    private static final String ATTRIBUTE_VALUE = "value";
+    private static final String ATTRIBUTE_NAME = "name";
+
     private static final String ELEMENT_PROPERTY = "property";
-    private static final String ATTRIBUTE_PROPERTY_NAME = "name";
-    private static final String ATTRIBUTE_PROPERTY_REF = "ref";
-    private static final String ATTRIBUTE_PROPERTY_VALUE = "value";
+    private static final String ELEMENT_CONSTRUCTOR_ARG = "constructor-arg";
 
 
     public void loadBeanDefinitions(Resource resource){
@@ -48,6 +51,7 @@ public class XmlBeanDefinitionReader {
 
                 BeanDefinition beanDefinition = createBeanDefinition(id, className);
                 parseBeanDefinitionAttributes(beanDefinition, element);
+                parseConstructorArgElements(element, beanDefinition);
                 parsePropertyElements(element, beanDefinition);
 
                 beanDefinitionRegistry.registerBeanDefinition(id, beanDefinition);
@@ -67,6 +71,19 @@ public class XmlBeanDefinitionReader {
         }
     }
 
+    private void parseConstructorArgElements(Element beanElement, BeanDefinition beanDefinition) {
+        List<Element> constructorArgElements = beanElement.elements(ELEMENT_CONSTRUCTOR_ARG);
+        if(constructorArgElements == null){
+            return ;
+        }
+        constructorArgElements.forEach(constructorArgElement -> parseConstructorArgElement(constructorArgElement, beanDefinition));
+    }
+
+    private void parseConstructorArgElement(Element constructorArgElement, BeanDefinition beanDefinition) {
+        Object value = parsePropertyValue(constructorArgElement, null);
+        beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(new ConstructorArgumentValues.ValueHolder(value));
+    }
+
     private void parsePropertyElements(Element beanElement, BeanDefinition beanDefinition) {
        List<Element> propertyElements =  beanElement.elements(ELEMENT_PROPERTY);
         if(propertyElements == null){
@@ -76,7 +93,7 @@ public class XmlBeanDefinitionReader {
     }
 
     private void parsePropertyElement(Element propertyElement, BeanDefinition beanDefinition) {
-        String propertyName = propertyElement.attributeValue(ATTRIBUTE_PROPERTY_NAME);
+        String propertyName = propertyElement.attributeValue(ATTRIBUTE_NAME);
         if (!StringUtils.hasLength(propertyName)) {
             logger.error("Tag 'property' must have a 'name' attribute");
             return;
@@ -91,9 +108,9 @@ public class XmlBeanDefinitionReader {
                 "<property> element for property '" + propertyName + "'" :
                 "<constructor-arg> element";
 
-        boolean hasRefAttribute =  hasAttribute(element, ATTRIBUTE_PROPERTY_REF);
+        boolean hasRefAttribute =  hasAttribute(element, ATTRIBUTE_REF);
         if(hasRefAttribute){
-            String refValue = element.attributeValue(ATTRIBUTE_PROPERTY_REF);
+            String refValue = element.attributeValue(ATTRIBUTE_REF);
             if(StringUtils.isEmpty(refValue)){
                 logger.error(elementName + " contains empty 'ref' attribute");
                 return null;
@@ -101,9 +118,9 @@ public class XmlBeanDefinitionReader {
             return new RuntimeBeanReference(refValue);
         }
 
-        boolean hasValueAttribute = hasAttribute(element, ATTRIBUTE_PROPERTY_VALUE);
+        boolean hasValueAttribute = hasAttribute(element, ATTRIBUTE_VALUE);
         if(hasValueAttribute){
-            return new TypedStringValue(element.attributeValue(ATTRIBUTE_PROPERTY_VALUE));
+            return new TypedStringValue(element.attributeValue(ATTRIBUTE_VALUE));
         }
 
         throw new RuntimeException(elementName + " must specify a ref or value");
