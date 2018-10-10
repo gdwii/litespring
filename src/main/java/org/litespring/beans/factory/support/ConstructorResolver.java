@@ -30,10 +30,22 @@ public class ConstructorResolver {
         Object[] argsToUse = null;
 
         Constructor<?>[] candidates = beanClass.getConstructors();
+        AutowireUtils.sortConstructors(candidates);
+
         ConstructorArgumentValues constructorArgumentValues = beanDefinition.getConstructorArgumentValues();
+        int minNrOfArgs = constructorArgumentValues.getArgumentCount();
 
         for(int i = 0; i < candidates.length; i ++){
             Constructor<?> candidate = candidates[i];
+            // 如果candidate参数不足,直接跳过
+            if(candidate.getParameterCount() < minNrOfArgs){
+                continue ;
+            }
+            if(){
+
+            }
+
+
             if(candidate.getParameterCount() != constructorArgumentValues.getArgumentCount()){
                 continue ;
             }
