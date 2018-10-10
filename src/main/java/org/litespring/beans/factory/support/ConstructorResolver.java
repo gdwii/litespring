@@ -37,12 +37,12 @@ public class ConstructorResolver {
 
         for(int i = 0; i < candidates.length; i ++){
             Constructor<?> candidate = candidates[i];
+            if(constructorToUse != null && constructorArgumentValues.getArgumentCount() > candidate.getParameterCount()){
+                break ;
+            }
             // 如果candidate参数不足,直接跳过
             if(candidate.getParameterCount() < minNrOfArgs){
                 continue ;
-            }
-            if(){
-
             }
 
 
