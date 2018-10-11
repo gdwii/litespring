@@ -7,15 +7,14 @@ import org.litespring.beans.TypeConverter;
 import org.litespring.beans.factory.BeanCreationException;
 import org.litespring.beans.factory.BeanFactory;
 import org.litespring.util.ClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.litespring.util.MethodInvoker;
 
 import java.lang.reflect.Constructor;
-import java.util.List;
+import java.util.Arrays;
 
 public class ConstructorResolver {
-    private static final Logger logger = LoggerFactory.getLogger(ConstructorResolver.class);
     private final BeanFactory beanFactory;
+
     public ConstructorResolver(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
@@ -28,64 +27,61 @@ public class ConstructorResolver {
 
         Constructor<?> constructorToUse = null;
         Object[] argsToUse = null;
+        int minTypeDiffWeight = Integer.MAX_VALUE;
 
         Constructor<?>[] candidates = beanClass.getConstructors();
         AutowireUtils.sortConstructors(candidates);
 
         ConstructorArgumentValues constructorArgumentValues = beanDefinition.getConstructorArgumentValues();
-        int minNrOfArgs = constructorArgumentValues.getArgumentCount();
 
         for(int i = 0; i < candidates.length; i ++){
             Constructor<?> candidate = candidates[i];
-            // 如果candidate参数不足,直接跳过
-            if(candidate.getParameterCount() < minNrOfArgs){
-                continue ;
-            }
-            if(){
 
+            if(constructorToUse != null && argsToUse.length > candidate.getParameterCount()){
+                // Already found greedy constructor that can be satisfied ->
+                // do not look any further, there are only less greedy constructors left.
+                break ;
             }
-
 
             if(candidate.getParameterCount() != constructorArgumentValues.getArgumentCount()){
                 continue ;
             }
 
-            argsToUse = new Object[candidate.getParameterCount()];
+            ArgumentsHolder argsHolder = createArgumentArray(constructorArgumentValues, candidate.getParameterTypes(), valueResolver, typeConverter);
 
-            boolean result = valuesMatchType(candidate.getParameterTypes(),
-                                            constructorArgumentValues.getGenericArgumentValues(),
-                                            argsToUse,
-                                            valueResolver,
-                                            typeConverter);
-            if(result){
+            int typeDiffWeight = argsHolder.getTypeDifferenceWeight(candidate.getParameterTypes());
+            if(typeDiffWeight < minTypeDiffWeight){
+                minTypeDiffWeight = typeDiffWeight;
                 constructorToUse = candidate;
-                break;
+                argsToUse = argsHolder.arguments;
+            }else if(typeDiffWeight == minTypeDiffWeight && constructorToUse != null){
+                throw new BeanCreationException(
+                        "Ambiguous constructor matches found in bean '" + beanDefinition.getBeanClassName() + "' " +
+                                "(hint: specify index/type/name arguments for simple parameters to avoid type ambiguities): " +
+                                Arrays.asList(constructorToUse, candidate));
             }
         }
 
         return instantiateBean(constructorToUse, argsToUse, beanDefinition);
     }
 
-    private boolean valuesMatchType(Class<?>[] parameterTypes,
-                                    List<ConstructorArgumentValues.ValueHolder> genericArgumentValues,
-                                    Object[] argsToUse,
-                                    BeanDefinitionValueResolver valueResolver,
-                                    TypeConverter typeConverter) {
-        for(int i = 0; i < parameterTypes.length; i ++){
-            try{
-                Class<?> parameterType = parameterTypes[i];
-                Object parameterValue = genericArgumentValues.get(i).getValue();
-                Object resolvedValue = valueResolver.resolveValueIfNecessary(parameterValue);
-                Object convertedValue = typeConverter.convertIfNecessary(resolvedValue, parameterType);
-                argsToUse[i] = convertedValue;
-            } catch (Exception e){
-                logger.error("valuesMatchType is not match", e);
-                return false;
-            }
-        }
-        return true;
-    }
+    private ArgumentsHolder createArgumentArray(ConstructorArgumentValues constructorArgumentValues, Class<?>[] parameterTypes,
+                                                BeanDefinitionValueResolver valueResolver, TypeConverter typeConverter) {
+        ArgumentsHolder argsHolder = new ArgumentsHolder(parameterTypes.length);
 
+        for(int paramIndex = 0; paramIndex < parameterTypes.length; paramIndex ++){
+            ConstructorArgumentValues.ValueHolder valueHolder = constructorArgumentValues.getArgumentValue(paramIndex);
+
+            Object originalValue = valueHolder.getValue();
+            Object resolvedValue = valueResolver.resolveValueIfNecessary(originalValue);
+            argsHolder.rawArguments[paramIndex] = resolvedValue;
+
+            Object convertedValue = typeConverter.convertIfNecessary(resolvedValue, parameterTypes[paramIndex]);
+            argsHolder.arguments[paramIndex] = convertedValue;
+        }
+
+        return argsHolder;
+    }
 
     private Class<?> loadBeanClass(BeanDefinition beanDefinition) {
         try {
@@ -103,6 +99,27 @@ public class ConstructorResolver {
             return constructorToUse.newInstance(argsToUse);
         } catch (Exception e) {
             throw new BeanCreationException(beanDefinition.getId(), "can't create instance using " + constructorToUse);
+        }
+    }
+
+    private static class ArgumentsHolder{
+        public final Object[] rawArguments;
+
+        public final Object[] arguments;
+
+        public ArgumentsHolder(int length) {
+            arguments = new Object[length];
+            rawArguments = new Object[length];
+        }
+
+        public int getTypeDifferenceWeight(Class<?>[] parameterTypes) {
+            // If valid arguments found, determine type difference weight.
+            // Try type difference weight on both the converted arguments and
+            // the raw arguments. If the raw weight is better, use it.
+            // Decrease raw weight by 1024 to prefer it over equal converted weight.
+            int typeDiffWeight = MethodInvoker.getTypeDifferenceWeight(parameterTypes, arguments);
+            int rawTypeDiffWeight = MethodInvoker.getTypeDifferenceWeight(parameterTypes, rawArguments) - 1024;
+            return Math.min(typeDiffWeight, rawTypeDiffWeight);
         }
     }
 }

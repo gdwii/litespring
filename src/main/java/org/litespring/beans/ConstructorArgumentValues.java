@@ -29,6 +29,10 @@ public class ConstructorArgumentValues {
         return genericArgumentValues.isEmpty();
     }
 
+    public ValueHolder getArgumentValue(int paramIndex) {
+        return genericArgumentValues.get(paramIndex);
+    }
+
     public static class ValueHolder {
         private String name;
 

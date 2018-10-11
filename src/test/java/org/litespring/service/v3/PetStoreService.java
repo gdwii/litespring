@@ -19,6 +19,12 @@ public class PetStoreService {
         this.version = version;
     }
 
+    public PetStoreService(AccountDao accountDao, ItemDao itemDao, String version) {
+        this.accountDao = accountDao;
+        this.itemDao = itemDao;
+        this.version = Integer.parseInt(version);
+    }
+
     public AccountDao getAccountDao() {
         return accountDao;
     }
