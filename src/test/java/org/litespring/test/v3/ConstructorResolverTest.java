@@ -23,7 +23,7 @@ public class ConstructorResolverTest {
     }
 
     @Test
-    public void testGetBeanDefinition(){
+    public void testAutowireConstructor(){
         PetStoreService petStore = getBean("petStore");
         Assertions.assertNotNull(petStore.getAccountDao());
         Assertions.assertNotNull(petStore.getItemDao());
@@ -31,21 +31,21 @@ public class ConstructorResolverTest {
     }
 
     @Test
-    public void testGetBeanDefinitionWithConstructorIndex(){
+    public void testAutowireConstructorWithIndex(){
         MultiConstructorPetStoreService petStore = getBean("indexConstructorPetStore");
         Assertions.assertEquals(1, petStore.getV1().getVersion());
         Assertions.assertEquals(2, petStore.getV2().getVersion());
     }
 
     @Test
-    public void testGetBeanDefinitionWithConstructorType(){
+    public void testAutowireConstructorWithType(){
         MultiConstructorPetStoreService petStore = getBean("typeConstructorPetStore");
         Assertions.assertEquals("13", petStore.getName());
         Assertions.assertEquals(12, petStore.getNum());
     }
 
     @Test
-    public void testGetBeanDefinitionWithConstructorName(){
+    public void testAutowireConstructorWithName(){
         MultiConstructorPetStoreService petStore = getBean("nameConstructorPetStore");
         Assertions.assertEquals(1, petStore.getV1().getVersion());
         Assertions.assertEquals(2, petStore.getV2().getVersion());

@@ -34,6 +34,8 @@ public class XmlBeanDefinitionReader {
     private static final String ATTRIBUTE_REF = "ref";
     private static final String ATTRIBUTE_VALUE = "value";
     private static final String ATTRIBUTE_NAME = "name";
+    private static final String ATTRIBUTE_INDEX = "index";
+    private static final String ATTRIBUTE_TYPE = "type";
 
     private static final String ELEMENT_PROPERTY = "property";
     private static final String ELEMENT_CONSTRUCTOR_ARG = "constructor-arg";

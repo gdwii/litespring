@@ -2,13 +2,12 @@ package org.litespring.beans;
 
 import org.litespring.util.Assert;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class ConstructorArgumentValues {
     private final List<ValueHolder> genericArgumentValues = new ArrayList<>();
+
+    private final Map<Integer, ValueHolder> indexArgumentValues = new HashMap<>();
 
     public List<ValueHolder> getGenericArgumentValues() {
         return Collections.unmodifiableList(genericArgumentValues);
@@ -31,6 +30,10 @@ public class ConstructorArgumentValues {
 
     public ValueHolder getArgumentValue(int paramIndex) {
         return genericArgumentValues.get(paramIndex);
+    }
+
+    public Map<Integer, ValueHolder> getIndexedArgumentValues() {
+        return indexArgumentValues;
     }
 
     public static class ValueHolder {
