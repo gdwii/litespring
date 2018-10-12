@@ -11,4 +11,30 @@
         <constructor-arg ref="itemDao"/>
         <constructor-arg value="1"/>
     </bean>
+
+    <bean id="indexConstructorPetStore"
+          class="org.litespring.service.v3.MultiConstructorPetStoreService" >
+        <constructor-arg index="1" ref="v2PetStoreDao"/>
+        <constructor-arg index="0" ref="v1PetStoreDao"/>
+    </bean>
+
+    <bean id="nameConstructorPetStore"
+          class="org.litespring.service.v3.MultiConstructorPetStoreService" >
+        <constructor-arg name="v2" ref="v2PetStoreDao"/>
+        <constructor-arg name="v1" ref="v1PetStoreDao"/>
+    </bean>
+
+    <bean id="typeConstructorPetStore"
+          class="org.litespring.service.v3.MultiConstructorPetStoreService" >
+        <constructor-arg type="java.lang.String" value="13"/>
+        <constructor-arg type="int" value="12"/>
+    </bean>
+
+    <bean id="v1PetStoreDao" class="org.litespring.service.v3.PetStoreDao">
+        <constructor-arg value="1"/>
+    </bean>
+
+    <bean id="v2PetStoreDao" class="org.litespring.service.v3.PetStoreDao">
+        <constructor-arg value="2"/>
+    </bean>
 </beans>
