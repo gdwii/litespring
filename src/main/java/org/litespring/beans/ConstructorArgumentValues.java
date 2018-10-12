@@ -7,7 +7,7 @@ import java.util.*;
 public class ConstructorArgumentValues {
     private final List<ValueHolder> genericArgumentValues = new ArrayList<>();
 
-    private final Map<Integer, ValueHolder> indexArgumentValues = new HashMap<>();
+    private final Map<Integer, ValueHolder> indexedArgumentValues = new HashMap<>();
 
     public List<ValueHolder> getGenericArgumentValues() {
         return Collections.unmodifiableList(genericArgumentValues);
@@ -20,6 +20,20 @@ public class ConstructorArgumentValues {
         }
     }
 
+    public void addIndexArgumentValue(int index, ValueHolder newValue) {
+        Assert.isTrue(index >= 0, "Index must not be negative");
+        Assert.notNull(newValue, "ValueHolder must not be null");
+        indexedArgumentValues.put(index, newValue);
+    }
+
+    public Map<Integer, ValueHolder> getIndexedArgumentValues() {
+        return indexedArgumentValues;
+    }
+
+    public boolean hasIndexedArgumentValue(int index) {
+        return indexedArgumentValues.containsKey(index);
+    }
+
     public int getArgumentCount(){
         return genericArgumentValues.size();
     }
@@ -30,10 +44,6 @@ public class ConstructorArgumentValues {
 
     public ValueHolder getArgumentValue(int paramIndex) {
         return genericArgumentValues.get(paramIndex);
-    }
-
-    public Map<Integer, ValueHolder> getIndexedArgumentValues() {
-        return indexArgumentValues;
     }
 
     public static class ValueHolder {

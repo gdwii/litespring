@@ -82,8 +82,33 @@ public class XmlBeanDefinitionReader {
     }
 
     private void parseConstructorArgElement(Element constructorArgElement, BeanDefinition beanDefinition) {
+        String indexAttr = constructorArgElement.elementText(ATTRIBUTE_INDEX);
+        String nameAttr = constructorArgElement.elementText(ATTRIBUTE_NAME);
+        String typeAttr = constructorArgElement.elementText(ATTRIBUTE_TYPE);
         Object value = parsePropertyValue(constructorArgElement, null);
-        beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(new ConstructorArgumentValues.ValueHolder(value));
+        ConstructorArgumentValues.ValueHolder valueHolder = new ConstructorArgumentValues.ValueHolder(value);
+        if(StringUtils.hasText(nameAttr)){
+            valueHolder.setName(nameAttr);
+        }
+        if(StringUtils.hasText(typeAttr)){
+            valueHolder.setType(typeAttr);
+        }
+        if(StringUtils.hasText(indexAttr)){
+            try {
+                int index = Integer.parseInt(indexAttr);
+                if(index < 0){
+                    throw new BeanDefinitionParsingException("'index' cannot be lower than 0");
+                }
+                if(beanDefinition.getConstructorArgumentValues().hasIndexedArgumentValue(index)){
+                    throw new BeanDefinitionParsingException("Ambiguous constructor-arg entries for index " + index);
+                }
+                beanDefinition.getConstructorArgumentValues().addIndexArgumentValue(index, valueHolder);
+            }catch (NumberFormatException e){
+                throw new BeanDefinitionParsingException("Attribute 'index' of tag 'constructor-arg' must be an integer", e);
+            }
+        }else{
+            beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(valueHolder);
+        }
     }
 
     private void parsePropertyElements(Element beanElement, BeanDefinition beanDefinition) {
