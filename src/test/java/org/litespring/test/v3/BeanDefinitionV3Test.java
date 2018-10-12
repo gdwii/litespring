@@ -85,9 +85,8 @@ public class BeanDefinitionV3Test {
         Assertions.assertEquals("java.lang.String", argumentValues.get(0).getType());
 
         TypedStringValue strValue2 = (TypedStringValue)argumentValues.get(1).getValue();
-        Assertions.assertEquals("12", strValue1.getValue());
+        Assertions.assertEquals("12", strValue2.getValue());
         Assertions.assertEquals("int", argumentValues.get(1).getType());
-
 
         Assertions.assertTrue(constructorArgumentValues.getIndexedArgumentValues().isEmpty());
     }

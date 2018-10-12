@@ -82,9 +82,9 @@ public class XmlBeanDefinitionReader {
     }
 
     private void parseConstructorArgElement(Element constructorArgElement, BeanDefinition beanDefinition) {
-        String indexAttr = constructorArgElement.elementText(ATTRIBUTE_INDEX);
-        String nameAttr = constructorArgElement.elementText(ATTRIBUTE_NAME);
-        String typeAttr = constructorArgElement.elementText(ATTRIBUTE_TYPE);
+        String indexAttr = constructorArgElement.attributeValue(ATTRIBUTE_INDEX);
+        String nameAttr = constructorArgElement.attributeValue(ATTRIBUTE_NAME);
+        String typeAttr = constructorArgElement.attributeValue(ATTRIBUTE_TYPE);
         Object value = parsePropertyValue(constructorArgElement, null);
         ConstructorArgumentValues.ValueHolder valueHolder = new ConstructorArgumentValues.ValueHolder(value);
         if(StringUtils.hasText(nameAttr)){
