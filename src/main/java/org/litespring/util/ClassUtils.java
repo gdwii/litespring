@@ -95,4 +95,13 @@ public abstract class ClassUtils {
             primitiveTypeToWrapperMap.put(entry.getValue(), entry.getKey());
         }
     }
+
+    /**
+     * Check whether the given class matches the user-specified type name.
+     * @param clazz the class to check
+     * @param typeName the type name to match
+     */
+    public static boolean matchesTypeName(Class<?> clazz, String typeName) {
+        return clazz != null && clazz.getName().equals(typeName) ;
+    }
 }

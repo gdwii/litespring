@@ -16,7 +16,7 @@ public class MultiConstructorPetStoreService {
         this.num = -1;
     }
 
-    public MultiConstructorPetStoreService(String name, int num) {
+    public MultiConstructorPetStoreService(String name, Integer num) {
         this.name = name;
         this.num = num;
     }

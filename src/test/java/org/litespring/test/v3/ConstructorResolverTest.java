@@ -51,6 +51,13 @@ public class ConstructorResolverTest {
         Assertions.assertEquals(2, petStore.getV2().getVersion());
     }
 
+    @Test
+    public void testMixAutowireConstructor(){
+        MultiConstructorPetStoreService petStore = getBean("mixConstructorPetStore");
+        Assertions.assertEquals(12, petStore.getNum());
+        Assertions.assertEquals("13", petStore.getName());
+    }
+
     private <T> T getBean(String beanId) {
         BeanDefinition beanDefinition = defaultBeanFactory.getBeanDefinition(beanId);
         ConstructorResolver constructorResolver = new ConstructorResolver(defaultBeanFactory);

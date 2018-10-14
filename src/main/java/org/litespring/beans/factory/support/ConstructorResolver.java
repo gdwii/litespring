@@ -1,19 +1,24 @@
 package org.litespring.beans.factory.support;
 
-import org.litespring.beans.BeanDefinition;
-import org.litespring.beans.ConstructorArgumentValues;
-import org.litespring.beans.SimpleTypeConverter;
-import org.litespring.beans.TypeConverter;
+import org.litespring.beans.*;
 import org.litespring.beans.factory.BeanCreationException;
 import org.litespring.beans.factory.BeanFactory;
+import org.litespring.beans.factory.UnsatisfiedDependencyException;
+import org.litespring.core.ParameterNameDiscoverer;
+import org.litespring.core.StandardReflectionParameterNameDiscoverer;
 import org.litespring.util.ClassUtils;
 import org.litespring.util.MethodInvoker;
+import org.litespring.util.ObjectUtils;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ConstructorResolver {
     private final BeanFactory beanFactory;
+
+    private ParameterNameDiscoverer parameterNameDiscoverer = new StandardReflectionParameterNameDiscoverer();
 
     public ConstructorResolver(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
@@ -34,9 +39,7 @@ public class ConstructorResolver {
 
         ConstructorArgumentValues constructorArgumentValues = beanDefinition.getConstructorArgumentValues();
 
-        for(int i = 0; i < candidates.length; i ++){
-            Constructor<?> candidate = candidates[i];
-
+        for(Constructor<?> candidate : candidates){
             if(constructorToUse != null && argsToUse.length > candidate.getParameterCount()){
                 // Already found greedy constructor that can be satisfied ->
                 // do not look any further, there are only less greedy constructors left.
@@ -46,8 +49,13 @@ public class ConstructorResolver {
             if(candidate.getParameterCount() != constructorArgumentValues.getArgumentCount()){
                 continue ;
             }
-
-            ArgumentsHolder argsHolder = createArgumentArray(constructorArgumentValues, candidate.getParameterTypes(), valueResolver, typeConverter);
+            ArgumentsHolder argsHolder;
+            try{
+                String[] paramNames = parameterNameDiscoverer.getParameterNames(candidate);
+                argsHolder = createArgumentArray(constructorArgumentValues, candidate.getParameterTypes(), paramNames, valueResolver, typeConverter);
+            }catch (UnsatisfiedDependencyException ex) {
+                continue;
+            }
 
             int typeDiffWeight = argsHolder.getTypeDifferenceWeight(candidate.getParameterTypes());
             if(typeDiffWeight < minTypeDiffWeight){
@@ -65,18 +73,37 @@ public class ConstructorResolver {
         return instantiateBean(constructorToUse, argsToUse, beanDefinition);
     }
 
-    private ArgumentsHolder createArgumentArray(ConstructorArgumentValues constructorArgumentValues, Class<?>[] parameterTypes,
+    private ArgumentsHolder createArgumentArray(ConstructorArgumentValues constructorArgumentValues,
+                                                Class<?>[] parameterTypes, String[] paramNames,
                                                 BeanDefinitionValueResolver valueResolver, TypeConverter typeConverter) {
         ArgumentsHolder argsHolder = new ArgumentsHolder(parameterTypes.length);
+        Set<ConstructorArgumentValues.ValueHolder> usedValueHolders = new HashSet<>(parameterTypes.length);
 
         for(int paramIndex = 0; paramIndex < parameterTypes.length; paramIndex ++){
-            ConstructorArgumentValues.ValueHolder valueHolder = constructorArgumentValues.getArgumentValue(paramIndex);
+            Class<?> parameterType = parameterTypes[paramIndex];
+            String paramName = paramNames == null ? "" : paramNames[paramIndex];
+
+            ConstructorArgumentValues.ValueHolder valueHolder = constructorArgumentValues.getArgumentValue(paramIndex, parameterType, paramName, usedValueHolders);
+            if(valueHolder == null){
+                throw new UnsatisfiedDependencyException(
+                        "Ambiguous argument values for parameter of type [" + parameterType.getName() +
+                                "] - did you specify the correct bean references as arguments?");
+            }
+            usedValueHolders.add(valueHolder);
 
             Object originalValue = valueHolder.getValue();
             Object resolvedValue = valueResolver.resolveValueIfNecessary(originalValue);
             argsHolder.rawArguments[paramIndex] = resolvedValue;
 
-            Object convertedValue = typeConverter.convertIfNecessary(resolvedValue, parameterTypes[paramIndex]);
+            Object convertedValue;
+            try{
+                convertedValue = typeConverter.convertIfNecessary(resolvedValue, parameterTypes[paramIndex]);
+            }catch (TypeMismatchException ex) {
+                throw new UnsatisfiedDependencyException(
+                        "Could not convert argument value of type [" +
+                                ObjectUtils.nullSafeClassName(valueHolder.getValue()) +
+                                "] to required type [" + parameterType.getName() + "]: " + ex.getMessage());
+            }
             argsHolder.arguments[paramIndex] = convertedValue;
         }
 

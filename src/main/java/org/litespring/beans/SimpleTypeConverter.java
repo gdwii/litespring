@@ -28,7 +28,7 @@ public class SimpleTypeConverter implements TypeConverter{
             }
         }
 
-        throw new RuntimeException("Todo : can't convert value for "+value +" class:"+requiredType);
+        throw new TypeMismatchException(value, requiredType);
     }
 
 
