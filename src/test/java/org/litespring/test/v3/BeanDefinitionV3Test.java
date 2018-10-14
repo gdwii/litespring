@@ -31,12 +31,9 @@ public class BeanDefinitionV3Test {
 
         List<ConstructorArgumentValues.ValueHolder> argumentValues = constructorArgumentValues.getGenericArgumentValues();
         Assertions.assertEquals(3, argumentValues.size());
-        RuntimeBeanReference ref1 = (RuntimeBeanReference)argumentValues.get(0).getValue();
-        Assertions.assertEquals("accountDao", ref1.getBeanName());
-        RuntimeBeanReference ref2 = (RuntimeBeanReference)argumentValues.get(1).getValue();
-        Assertions.assertEquals("itemDao", ref2.getBeanName());
-        TypedStringValue strValue = (TypedStringValue)argumentValues.get(2).getValue();
-        Assertions.assertEquals( "1", strValue.getValue());
+        assertRuntimeBeanReference(argumentValues.get(0), null, null, "accountDao");
+        assertRuntimeBeanReference(argumentValues.get(1), null, null, "itemDao");
+        assertTypedStringValue(argumentValues.get(2), null, null, "1");
 
         Assertions.assertTrue(constructorArgumentValues.getIndexedArgumentValues().isEmpty());
     }
@@ -47,10 +44,8 @@ public class BeanDefinitionV3Test {
         Map<Integer, ConstructorArgumentValues.ValueHolder> indexedArgumentValues = constructorArgumentValues.getIndexedArgumentValues();
 
         Assertions.assertEquals(2, indexedArgumentValues.size());
-        RuntimeBeanReference ref1 = (RuntimeBeanReference)indexedArgumentValues.get(0).getValue();
-        Assertions.assertEquals("v1PetStoreDao", ref1.getBeanName());
-        RuntimeBeanReference ref2 = (RuntimeBeanReference)indexedArgumentValues.get(1).getValue();
-        Assertions.assertEquals("v2PetStoreDao", ref2.getBeanName());
+        assertRuntimeBeanReference(indexedArgumentValues.get(0), null, null, "v1PetStoreDao");
+        assertRuntimeBeanReference(indexedArgumentValues.get(1), null, null, "v2PetStoreDao");
 
         Assertions.assertTrue(constructorArgumentValues.getGenericArgumentValues().isEmpty());
     }
@@ -62,13 +57,8 @@ public class BeanDefinitionV3Test {
         List<ConstructorArgumentValues.ValueHolder> argumentValues = constructorArgumentValues.getGenericArgumentValues();
         Assertions.assertEquals(2, argumentValues.size());
 
-        RuntimeBeanReference ref1 = (RuntimeBeanReference)argumentValues.get(1).getValue();
-        Assertions.assertEquals("v1PetStoreDao", ref1.getBeanName());
-        Assertions.assertEquals("v1", argumentValues.get(1).getName());
-
-        RuntimeBeanReference ref2 = (RuntimeBeanReference)argumentValues.get(0).getValue();
-        Assertions.assertEquals("v2PetStoreDao", ref2.getBeanName());
-        Assertions.assertEquals("v2", argumentValues.get(0).getName());
+        assertRuntimeBeanReference(argumentValues.get(0), "v2", null, "v2PetStoreDao");
+        assertRuntimeBeanReference(argumentValues.get(1), "v1", null, "v1PetStoreDao");
 
         Assertions.assertTrue(constructorArgumentValues.getIndexedArgumentValues().isEmpty());
     }
@@ -79,16 +69,45 @@ public class BeanDefinitionV3Test {
 
         List<ConstructorArgumentValues.ValueHolder> argumentValues = constructorArgumentValues.getGenericArgumentValues();
         Assertions.assertEquals(2, argumentValues.size());
+        assertTypedStringValue(argumentValues.get(0), null, "java.lang.String", "13");
+        assertTypedStringValue(argumentValues.get(1), null, "java.lang.Integer", "12");
 
-        TypedStringValue strValue1 = (TypedStringValue)argumentValues.get(0).getValue();
-        Assertions.assertEquals("13", strValue1.getValue());
-        Assertions.assertEquals("java.lang.String", argumentValues.get(0).getType());
-
-        TypedStringValue strValue2 = (TypedStringValue)argumentValues.get(1).getValue();
-        Assertions.assertEquals("12", strValue2.getValue());
-        Assertions.assertEquals("int", argumentValues.get(1).getType());
-
+        Map<Integer, ConstructorArgumentValues.ValueHolder> indexedArgumentValues = constructorArgumentValues.getIndexedArgumentValues();
         Assertions.assertTrue(constructorArgumentValues.getIndexedArgumentValues().isEmpty());
+    }
+
+    @Test
+    public void testMixConstructorArgument(){
+        ConstructorArgumentValues constructorArgumentValues = getConstructorArgumentValues("mixConstructorPetStore", "org.litespring.service.v3.MultiConstructorPetStoreService");
+
+        List<ConstructorArgumentValues.ValueHolder> argumentValues = constructorArgumentValues.getGenericArgumentValues();
+        Assertions.assertEquals(1, argumentValues.size());
+        assertTypedStringValue(argumentValues.get(0), "num", "java.lang.Integer", "12");
+
+        Map<Integer, ConstructorArgumentValues.ValueHolder> indexedArgumentValues = constructorArgumentValues.getIndexedArgumentValues();
+        Assertions.assertEquals(1, indexedArgumentValues.size());
+        assertTypedStringValue(indexedArgumentValues.get(0), "name", "java.lang.String", "13");
+    }
+
+    private void assertTypedStringValue(ConstructorArgumentValues.ValueHolder valueHolder, String name, String type, String value){
+        assertNameAndType(valueHolder, name, type);
+
+        Assertions.assertTrue(valueHolder.getValue() instanceof TypedStringValue);
+        TypedStringValue stringValue = (TypedStringValue)valueHolder.getValue();
+        Assertions.assertEquals(value, stringValue.getValue());
+    }
+
+    private void assertRuntimeBeanReference(ConstructorArgumentValues.ValueHolder valueHolder, String name, String type, String beanName){
+        assertNameAndType(valueHolder, name, type);
+
+        Assertions.assertTrue(valueHolder.getValue() instanceof RuntimeBeanReference);
+        RuntimeBeanReference reference = (RuntimeBeanReference)valueHolder.getValue();
+        Assertions.assertEquals(beanName, reference.getBeanName());
+    }
+
+    private void assertNameAndType(ConstructorArgumentValues.ValueHolder valueHolder, String name, String type) {
+        Assertions.assertEquals(name, valueHolder.getName());
+        Assertions.assertEquals(type, valueHolder.getType());
     }
 
     private ConstructorArgumentValues getConstructorArgumentValues(String beanId, String beanClassName) {

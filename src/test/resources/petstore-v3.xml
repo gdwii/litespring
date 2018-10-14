@@ -27,7 +27,7 @@
     <bean id="typeConstructorPetStore"
           class="org.litespring.service.v3.MultiConstructorPetStoreService" >
         <constructor-arg type="java.lang.String" value="13"/>
-        <constructor-arg type="int" value="12"/>
+        <constructor-arg type="java.lang.Integer" value="12"/>
     </bean>
 
     <bean id="v1PetStoreDao" class="org.litespring.service.v3.PetStoreDao">
@@ -36,5 +36,11 @@
 
     <bean id="v2PetStoreDao" class="org.litespring.service.v3.PetStoreDao">
         <constructor-arg value="2"/>
+    </bean>
+
+    <bean id="mixConstructorPetStore"
+          class="org.litespring.service.v3.MultiConstructorPetStoreService" >
+        <constructor-arg index="0" type="java.lang.String" name="name" value="13"/>
+        <constructor-arg type="java.lang.Integer" name="num" value="12"/>
     </bean>
 </beans>
