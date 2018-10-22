@@ -1,6 +1,6 @@
 package org.litespring.util;
 
-public class MethodInvoker {
+public abstract class MethodInvoker {
     /**
      * Algorithm that judges the match between the declared parameter types of a candidate method
      * and a specific list of arguments that this method is supposed to be invoked with.
